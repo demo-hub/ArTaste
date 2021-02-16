@@ -1,40 +1,59 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+
+    <md-autocomplete v-model="value" :md-options="movies" @md-changed="getMovies" @md-opened="getMovies">
+      <label>Movie</label>
+
+      <template slot="md-autocomplete-item" slot-scope="{ item }">
+        <span><img :src="`https://image.tmdb.org/t/p/w500${item.poster_path}`" style="max-width: 50px; padding-right: 0.7em">{{ item.title }}</span>
+        </template>
+    </md-autocomplete>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+import Vue from 'vue'
+import VueMaterial from 'vue-material'
+import 'vue-material/dist/vue-material.min.css'
+import 'vue-material/dist/theme/default.css'
+
+/* import Arweave from 'arweave/web';
+
+const arweave = Arweave.init({
+  host: '46.101.45.117',
+  port: 1984,
+  protocol: 'http',
+  timeout: 20000,
+  logging: false,
+});
+
+arweave.wallets.getBalance('MlV6DeOtRmakDOf6vgOBlif795tcWimgyPsYYNQ8q1Y').then(balance => console.log(balance)) */
+
+Vue.use(VueMaterial)
+
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+  data() {
+    return {
+      value: null,
+      movies: []
+    }
+  },
+  methods: {
+    getMovies (searchTerm) {
+      if (searchTerm) {
+        axios
+        .get(`https://api.themoviedb.org/3/search/movie?api_key=910de9dfb6ee354720ea90b86866c272&language=en-US&query=${searchTerm}&page=1&include_adult=false`)
+        .then(response => {
+          this.movies = response.data.results
+        })
+      }
+      }
   }
 }
 </script>
@@ -54,5 +73,8 @@ li {
 }
 a {
   color: #42b983;
+}
+.md-input {
+  margin-left: 100px !important;
 }
 </style>
